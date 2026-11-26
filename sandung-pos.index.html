@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sandung</title>
+  <style>
+    :root {
+      --bg: #e6e8ec;
+      --card: #ffffff;
+      --text: #2c2f36;
+      --muted: #9ca3af;
+      --line: #e5e7eb;
+      --blue: #2980b9;
+      --green: #16a34a;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 48px;
+    }
+
+    .top-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: #f3f4f6;
+      border-bottom: 1px solid #d1d5db;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .top-tab {
+      border: none;
+      background: transparent;
+      color: #4b5563;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 13px 4px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+    }
+
+    .top-tab.active {
+      color: #111827;
+      background: #ffffff;
+      border-bottom-color: var(--blue);
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 10px;
+    }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .pedidos-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    @media (min-width: 720px) {
+      .pedidos-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--card);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.14);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .card-body {
+      padding: 12px 12px 8px;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .mesa-title {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #2b2d31;
+      cursor: pointer;
+    }
+
+    .dots {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 1.1rem;
+      padding: 0 4px;
+      cursor: pointer;
+    }
+
+    .time-txt {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      margin: 2px 0 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 4px;
+      font-size: 0.92rem;
+      color: #374151;
+      margin-bottom: 6px;
+      line-height: 1.25;
+    }
+
+    .item-click {
+      display: flex;
+      gap: 6px;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .item-qty {
+      font-weight: 600;
+      color: #1f2937;
+      min-width: 12px;
+    }
+
+    .mini-controls {
+      display: flex;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .mini-btn {
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      color: #111827;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px 10px;
+      font-size: 0.88rem;
+      color: #9ca3af;
+    }
+
+    .card-total {
+      color: #7c828d;
+      font-weight: 600;
+    }
+
+    .pago-btn {
+      width: 100%;
+      border: none;
+      border-top: 1px solid var(--line);
+      background: #ffffff;
+      color: #9ca3af;
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      padding: 11px;
+      cursor: pointer;
+    }
+
+    .pago-btn.has-order {
+      color: var(--green);
+    }
+
+    .pago-btn.has-order:active {
+      background: #f0fdf4;
+    }
+
+    .zone-label {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #4b5563;
+      margin: 10px 0 6px;
+    }
+
+    .all-tables-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .table-pick {
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 10px 6px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    .table-pick.busy {
+      border-color: var(--blue);
+      background: #eff6ff;
+    }
+
+    .table-pick-num {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .table-pick-sub {
+      font-size: 0.74rem;
+      color: #6b7280;
+      margin-top: 2px;
+    }
+
+    .quick-box {
+      background: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.12);
+      padding: 14px;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .menu-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    @media (min-width: 600px) {
+      .menu-buttons {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .dish-btn {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9fafb;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 12px;
+      text-align: left;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #111827;
+      cursor: pointer;
+    }
+
+    .dish-btn:active {
+      background: #dbeafe;
+    }
+
+    .edit-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 4px;
+      border-bottom: 1px solid var(--line);
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    input, textarea {
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.88rem;
+      background: #ffffff;
+      color: #111827;
+      font-family: inherit;
+    }
+
+    .btn-sm {
+      border: 1px solid #d1d5db;
+      background: #f3f4f6;
+      color: #111827;
+      border-radius: 6px;
+      padding: 7px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .caja-total-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-tabs">
+    <button id="tab-pedidos" class="top-tab active" onclick="switchTab('pedidos')">PEDIDOS</button>
+    <button id="tab-mesas" class="top-tab" onclick="switchTab('mesas')">MESAS</button>
+    <button id="tab-menu" class="top-tab" onclick="switchTab('menu')">MENÚ</button>
+    <button id="tab-caja" class="top-tab" onclick="switchTab('caja')">CAJA</button>
+  </div>
+
+  <div class="container">
+    <!-- PEDIDOS -->
+    <section id="sec-pedidos" class="section active">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span style="font-size:0.8rem; color:#4b5563; font-weight:700;">Mozo:</span>
+          <input id="mozo-name" value="Andres" oninput="setMozo(this.value)" style="width:110px; padding:6px 8px;" />
+        </div>
+        <button class="btn-sm" onclick="switchTab('mesas')">+ Nueva mesa</button>
+      </div>
+
+      <div id="active-orders-grid" class="pedidos-grid"></div>
+    </section>
+
+    <!-- MESAS -->
+    <section id="sec-mesas" class="section">
+      <div id="all-zones-render"></div>
+
+      <div class="quick-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <div>
+            <strong id="cur-mesa-label" style="font-size:1.1rem;">Mesa 1</strong>
+            <div id="cur-mesa-zone" style="font-size:0.78rem; color:#6b7280;"></div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-sm" onclick="switchTab('pedidos')">Ver pedidos</button>
+            <button class="btn-sm" style="color:var(--green);" onclick="pagarMesa(state.mesaActual)">PAGO</button>
+          </div>
+        </div>
+
+        <div class="menu-buttons" id="mesa-menu-buttons"></div>
+
+        <input id="nota-rapida" type="text" placeholder="Nota opcional (ej. sin ensalada)..." style="width:100%; margin-bottom:8px;" />
+
+        <div style="font-size:0.8rem; font-weight:700; color:#4b5563; margin-bottom:4px;">
+          En esta mesa:
+        </div>
+        <div id="mesa-items-list"></div>
+      </div>
+    </section>
+
+    <!-- MENÚ -->
+    <section id="sec-menu" class="section">
+      <div class="quick-box" style="margin-top:0;">
+        <div style="font-weight:800; font-size:0.9rem; margin-bottom:8px;">MENÚ DE SANDUNG (toca un precio para editar)</div>
+        <div id="menu-items-manage"></div>
+
+        <div style="display:grid; grid-template-columns:1fr 90px auto; gap:6px; margin-top:10px;">
+          <input id="nuevo-plato-nombre" type="text" placeholder="Nombre del menú" />
+          <input id="nuevo-plato-precio" type="number" step="0.5" placeholder="S/." />
+          <button class="btn-sm" style="background:#111827; color:#fff;" onclick="agregarPlatoMenu()">+ Agregar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAJA Y RESPALDO -->
+    <section id="sec-caja" class="section">
+      <div class="quick-box" style="margin-top:0;">
+        <div class="caja-total-box">
+          <div>
+            <div style="font-size:0.78rem; font-weight:700; color:#166534;">VENTAS COBRADAS (HOY)</div>
+            <div id="caja-count" style="font-size:0.82rem; color:#15803d;">0 cobros</div>
+          </div>
+          <div id="caja-total" style="font-size:1.35rem; font-weight:800; color:#15803d;">S/.0.00</div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <strong style="font-size:0.88rem;">Historial de cobros</strong>
+          <button class="btn-sm" style="color:#dc2626;" onclick="limpiarCaja()">Limpiar caja</button>
+        </div>
+        <div id="caja-historial"></div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:16px 0;" />
+
+        <strong style="font-size:0.88rem; display:block; margin-bottom:6px;">Respaldo de datos (para no perder nada)</strong>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+          <button class="btn-sm" onclick="exportarDatos()">Copiar respaldo</button>
+          <button class="btn-sm" onclick="importarDatos()">Restaurar respaldo</button>
+        </div>
+        <textarea id="respaldo-box" rows="3" style="width:100%; font-size:0.75rem;" placeholder="Aquí aparece tu respaldo al copiar, o pega uno aquí para restaurar..."></textarea>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const ZONAS = [
+      { nombre: "Mesas (1 - 6)", mesas: [1, 2, 3, 4, 5, 6] },
+      { nombre: "Mesas (Lado Derecho)", mesas: [7, 8, 9, 10, 11] },
+      { nombre: "Mesas (Del Centro Izquierdo)", mesas: [12, 13, 14] },
+      { nombre: "Mesas (Lado Izquierdo)", mesas: [15, 16, 17, 18, 19, 20, 21] }
+    ];
+
+    const MENU_INICIAL = [
+      { id: "sr", nombre: "Seco de res", precio: 0 },
+      { id: "b",  nombre: "Bistec apanado montado", precio: 0 },
+      { id: "pp", nombre: "Pastel de papa con pollo al horno", precio: 0 },
+      { id: "p",  nombre: "Pollo a la parrilla con puré de papa", precio: 0 }
+    ];
+
+    const KEY = "sandung_simple_card_v3";
+    let state = cargar();
+
+    function hoyKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    }
+
+    function cargar() {
+      const raw = localStorage.getItem(KEY) || localStorage.getItem("sandung_simple_card_v2");
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          if (!parsed.ventas) parsed.ventas = [];
+          return parsed;
+        } catch (e) {}
+      }
+      const pedidos = {};
+      ZONAS.forEach(z => z.mesas.forEach(m => {
+        pedidos[m] = { items: [], actualizado: null };
+      }));
+      return {
+        mozo: "Andres",
+        mesaActual: 1,
+        menu: MENU_INICIAL,
+        pedidos,
+        ventas: []
+      };
+    }
+
+    function guardar() {
+      localStorage.setItem(KEY, JSON.stringify(state));
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+      document.getElementById("sec-" + tab).classList.add("active");
+
+      ["pedidos", "mesas", "menu", "caja"].forEach(t => {
+        document.getElementById("tab-" + t).classList.toggle("active", t === tab);
+      });
+
+      pintarTodo();
+    }
+
+    function seleccionarMesa(num) {
+      state.mesaActual = Number(num);
+      guardar();
+      switchTab("mesas");
+    }
+
+    function setMozo(nombre) {
+      state.mozo = nombre.trim() || "Andres";
+      guardar();
+      pintarPedidosActivos();
+    }
+
+    function tiempoTranscurrido(ts) {
+      if (!ts) return "";
+      const seg = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+      if (seg < 60) return "hace menos de un minuto";
+      const min = Math.floor(seg / 60);
+      if (min === 1) return "hace 1 minuto";
+      if (min < 60) return `hace ${min} minutos`;
+      const hrs = Math.floor(min / 60);
+      return hrs === 1 ? "hace 1 hora" : `hace ${hrs} horas`;
+    }
+
+    function sumarPlato(mesaNum, platoId) {
+      const m = Number(mesaNum);
+      const plato = state.menu.find(x => x.id === platoId);
+      if (!plato) return;
+
+      const notaEl = document.getElementById("nota-rapida");
+      const nota = notaEl ? notaEl.value.trim() : "";
+
+      const orden = state.pedidos[m];
+      const existe = orden.items.find(i => i.platoId === plato.id && (i.nota || "") === nota);
+
+      if (existe) {
+        existe.cantidad += 1;
+      } else {
+        orden.items.push({
+          uid: String(Date.now() + Math.random()),
+          platoId: plato.id,
+          nombre: plato.nombre,
+          precio: Number(plato.precio) || 0,
+          cantidad: 1,
+          nota
+        });
+      }
+
+      orden.actualizado = Date.now();
+      if (notaEl) notaEl.value = "";
+      guardar();
+      pintarTodo();
+    }
+
+    function cambiarCantidad(mesaNum, uid, delta) {
+      const m = Number(mesaNum);
+      const orden = state.pedidos[m];
+      if (!orden) return;
+
+      const idx = orden.items.findIndex(i => i.uid === uid);
+      if (idx === -1) return;
+
+      orden.items[idx].cantidad += delta;
+      if (orden.items[idx].cantidad <= 0) {
+        orden.items.splice(idx, 1);
+      }
+
+      orden.actualizado = orden.items.length > 0 ? Date.now() : null;
+      guardar();
+      pintarTodo();
+    }
+
+    function pagarMesa(mesaNum) {
+      const m = Number(mesaNum);
+      const orden = state.pedidos[m];
+      if (!orden || orden.items.length === 0) return;
+
+      const total = orden.items.reduce((acc, it) => acc + ((Number(it.precio) || 0) * it.cantidad), 0);
+
+      if (confirm(`¿Marcar PAGO de S/.${total.toFixed(2)} y cerrar Mesa ${m}?`)) {
+        const ahora = new Date();
+        state.ventas.unshift({
+          id: "v_" + Date.now(),
+          fecha: hoyKey(),
+          hora: ahora.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          mesa: m,
+          mozo: state.mozo,
+          total,
+          items: orden.items.map(i => `${i.cantidad}x ${i.nombre}`)
+        });
+        state.pedidos[m] = { items: [], actualizado: null };
+        guardar();
+        pintarTodo();
+      }
+    }
+
+    function agregarPlatoMenu() {
+      const nomEl = document.getElementById("nuevo-plato-nombre");
+      const preEl = document.getElementById("nuevo-plato-precio");
+      const nombre = nomEl.value.trim();
+      const precio = parseFloat(preEl.value) || 0;
+      if (!nombre) return;
+
+      state.menu.push({ id: "p_" + Date.now(), nombre, precio });
+      nomEl.value = "";
+      preEl.value = "";
+      guardar();
+      pintarTodo();
+    }
+
+    function editarPrecioPlato(id) {
+      const plato = state.menu.find(x => x.id === id);
+      if (!plato) return;
+      const nuevo = prompt(`Nuevo precio (S/.) para "${plato.nombre}":`, plato.precio);
+      if (nuevo === null) return;
+      const val = parseFloat(nuevo);
+      if (!isNaN(val) && val >= 0) {
+        plato.precio = val;
+        guardar();
+        pintarTodo();
+      }
+    }
+
+    function quitarPlatoMenu(id) {
+      if (state.menu.length <= 1) return;
+      if (confirm("¿Quitar este menú?")) {
+        state.menu = state.menu.filter(x => x.id !== id);
+        guardar();
+        pintarTodo();
+      }
+    }
+
+    function limpiarCaja() {
+      if (!state.ventas.length) return;
+      if (confirm("¿Borrar el historial de caja?")) {
+        state.ventas = [];
+        guardar();
+        pintarCaja();
+      }
+    }
+
+    function exportarDatos() {
+      const box = document.getElementById("respaldo-box");
+      box.value = JSON.stringify(state);
+      box.select();
+      try { navigator.clipboard && navigator.clipboard.writeText(box.value); } catch (e) {}
+      alert("Respaldo listo en el cuadro de texto.");
+    }
+
+    function importarDatos() {
+      const box = document.getElementById("respaldo-box");
+      try {
+        const parsed = JSON.parse(box.value.trim());
+        if (!parsed || !parsed.pedidos || !parsed.menu) throw new Error();
+        state = { ventas: [], ...parsed };
+        guardar();
+        pintarTodo();
+        alert("¡Datos restaurados!");
+      } catch (e) {
+        alert("Pega un respaldo válido en el cuadro primero.");
+      }
+    }
+
+    function pintarPedidosActivos() {
+      const grid = document.getElementById("active-orders-grid");
+      grid.innerHTML = "";
+
+      const ocupadas = [];
+      ZONAS.forEach(z => z.mesas.forEach(m => {
+        const orden = state.pedidos[m];
+        if (orden && orden.items.length > 0) {
+          ocupadas.push({ mesa: m, orden });
+        }
+      }));
+
+      if (ocupadas.length === 0) {
+        grid.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1; padding: 18px; text-align:center;">
+            <div style="color:#6b7280; margin-bottom:10px;">No hay pedidos activos ahora mismo.</div>
+            <button class="btn-sm" onclick="switchTab('mesas')">Ir a Mesas (1 - 21)</button>
+          </div>
+        `;
+        return;
+      }
+
+      ocupadas.forEach(({ mesa, orden }) => {
+        const total = orden.items.reduce((acc, it) => acc + ((Number(it.precio) || 0) * it.cantidad), 0);
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const lineasHtml = orden.items.map(it => `
+          <div class="item-line">
+            <div class="item-click" onclick="seleccionarMesa(${mesa})">
+              <span class="item-qty">${it.cantidad}</span>
+              <span>${it.nombre}${it.nota ? ` (${it.nota})` : ""}</span>
+            </div>
+            <div class="mini-controls">
+              <button class="mini-btn" onclick="event.stopPropagation(); cambiarCantidad(${mesa}, '${it.uid}', -1)">-</button>
+              <button class="mini-btn" onclick="event.stopPropagation(); cambiarCantidad(${mesa}, '${it.uid}', 1)">+</button>
+            </div>
+          </div>
+        `).join("");
+
+        card.innerHTML = `
+          <div class="card-body">
+            <div class="card-head">
+              <h3 class="mesa-title" onclick="seleccionarMesa(${mesa})">Mesa ${mesa}</h3>
+              <button class="dots" onclick="seleccionarMesa(${mesa})" title="Editar">⋮</button>
+            </div>
+            <div class="time-txt">${tiempoTranscurrido(orden.actualizado)}</div>
+            ${lineasHtml}
+          </div>
+          <div>
+            <div class="card-meta">
+              <span>${state.mozo}</span>
+              <span class="card-total">S/.${total.toFixed(2)}</span>
+            </div>
+            <button class="pago-btn has-order" onclick="pagarMesa(${mesa})">PAGO</button>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    function pintarMesas() {
+      const cont = document.getElementById("all-zones-render");
+      cont.innerHTML = "";
+
+      ZONAS.forEach(z => {
+        const lbl = document.createElement("div");
+        lbl.className = "zone-label";
+        lbl.textContent = z.nombre;
+        cont.appendChild(lbl);
+
+        const g = document.createElement("div");
+        g.className = "all-tables-grid";
+
+        z.mesas.forEach(m => {
+          const items = (state.pedidos[m] && state.pedidos[m].items) || [];
+          const cant = items.reduce((s, x) => s + x.cantidad, 0);
+          const btn = document.createElement("div");
+          btn.className = `table-pick ${cant > 0 ? "busy" : ""}`;
+          btn.style.outline = state.mesaActual === m ? "2px solid #2980b9" : "none";
+          btn.onclick = () => {
+            state.mesaActual = m;
+            guardar();
+            pintarTodo();
+          };
+          btn.innerHTML = `
+            <div class="table-pick-num">Mesa ${m}</div>
+            <div class="table-pick-sub">${cant > 0 ? `${cant} menú(s)` : "Libre"}</div>
+          `;
+          g.appendChild(btn);
+        });
+
+        cont.appendChild(g);
+      });
+
+      const m = state.mesaActual;
+      const zonaObj = ZONAS.find(z => z.mesas.includes(m));
+      document.getElementById("cur-mesa-label").textContent = `Mesa ${m}`;
+      document.getElementById("cur-mesa-zone").textContent = zonaObj ? zonaObj.nombre : "";
+
+      const mBtns = document.getElementById("mesa-menu-buttons");
+      mBtns.innerHTML = "";
+      state.menu.forEach(plato => {
+        const b = document.createElement("button");
+        b.className = "dish-btn";
+        b.onclick = () => sumarPlato(m, plato.id);
+        b.innerHTML = `
+          <span>${plato.nombre}</span>
+          <span>${plato.precio > 0 ? `S/.${Number(plato.precio).toFixed(2)} ` : ""}+</span>
+        `;
+        mBtns.appendChild(b);
+      });
+
+      const itemsList = document.getElementById("mesa-items-list");
+      const items = (state.pedidos[m] && state.pedidos[m].items) || [];
+      itemsList.innerHTML = "";
+
+      if (items.length === 0) {
+        itemsList.innerHTML = `<div style="color:#9ca3af; font-size:0.86rem;">Toca un menú arriba para agregar a la Mesa ${m}.</div>`;
+      } else {
+        items.forEach(it => {
+          const row = document.createElement("div");
+          row.className = "edit-row";
+          row.innerHTML = `
+            <div>
+              <strong>${it.cantidad}</strong> ${it.nombre}
+              ${it.nota ? `<span style="color:#b45309;">(${it.nota})</span>` : ""}
+            </div>
+            <div style="display:flex; gap:5px; align-items:center;">
+              <button class="mini-btn" onclick="cambiarCantidad(${m}, '${it.uid}', -1)">-</button>
+              <strong>${it.cantidad}</strong>
+              <button class="mini-btn" onclick="cambiarCantidad(${m}, '${it.uid}', 1)">+</button>
+            </div>
+          `;
+          itemsList.appendChild(row);
+        });
+      }
+    }
+
+    function pintarMenu() {
+      const box = document.getElementById("menu-items-manage");
+      box.innerHTML = "";
+      state.menu.forEach(p => {
+        const row = document.createElement("div");
+        row.className = "edit-row";
+        row.innerHTML = `
+          <div>
+            <strong>${p.nombre}</strong>
+            <span style="color:#2563eb; font-weight:700; margin-left:6px; cursor:pointer;" onclick="editarPrecioPlato('${p.id}')">S/.${Number(p.precio).toFixed(2)}</span>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <button class="mini-btn" onclick="editarPrecioPlato('${p.id}')">Precio</button>
+            <button class="mini-btn" style="color:#dc2626;" onclick="quitarPlatoMenu('${p.id}')">Quitar</button>
+          </div>
+        `;
+        box.appendChild(row);
+      });
+    }
+
+    function pintarCaja() {
+      const hoy = hoyKey();
+      const ventasHoy = (state.ventas || []).filter(v => v.fecha === hoy);
+      const totalHoy = ventasHoy.reduce((s, v) => s + (Number(v.total) || 0), 0);
+
+      document.getElementById("caja-total").textContent = `S/.${totalHoy.toFixed(2)}`;
+      document.getElementById("caja-count").textContent = `${ventasHoy.length} cobro(s) hoy`;
+
+      const hist = document.getElementById("caja-historial");
+      if (!state.ventas.length) {
+        hist.innerHTML = `<div style="color:#9ca3af; font-size:0.85rem;">Aún no hay cobros registrados.</div>`;
+        return;
+      }
+
+      hist.innerHTML = state.ventas.slice(0, 25).map(v => `
+        <div class="edit-row">
+          <div>
+            <strong>Mesa ${v.mesa}</strong> · <span style="color:#6b7280; font-size:0.8rem;">${v.hora} (${v.mozo})</span>
+            <div style="font-size:0.78rem; color:#4b5563;">${(v.items || []).join(", ")}</div>
+          </div>
+          <strong style="color:var(--green);">S/.${Number(v.total).toFixed(2)}</strong>
+        </div>
+      `).join("");
+    }
+
+    function pintarTodo() {
+      document.getElementById("mozo-name").value = state.mozo;
+      pintarPedidosActivos();
+      pintarMesas();
+      pintarMenu();
+      pintarCaja();
+    }
+
+    pintarTodo();
+    setInterval(pintarPedidosActivos, 30000);
+  </script>
+</body>
+</html>
